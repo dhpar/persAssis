@@ -1,7 +1,5 @@
-import json
-from app.agents.base import BaseAgent
-from app.llm.local_llm import LocalLLM, Query
-from app.config import VERIFIER_MODEL
+from backend.app.llm.local_llm import LocalLLM, Query
+from backend.app.config import VERIFIER_MODEL
 
 SYSTEM_PROMPT = """
     You are a strict fact-checker and reviewer.
@@ -19,7 +17,7 @@ def VerifierAgent(input_text: Query):
         {input_text.prompt}
         \"\"\"
         Respond with JSON:
-        {{
+        {{s
         "ok": true | false,
         "issues": "short explanation if false"
         }}

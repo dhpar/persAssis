@@ -44,8 +44,8 @@ Benefits: Centralized state management, reusable across components, clean separa
 API service exports both request/response interfaces and a singleton instance:
 
 ```typescript
-import { api, PromptResponse } from './services/api';
-const response: PromptResponse = await api.ask(query);
+import { api, Response } from './services/api';
+const response: Response = await api.ask(query);
 ```
 
 All API calls are typed; TS compiler catches mismatches.
@@ -88,6 +88,21 @@ Example:
 <div className="flex gap-2 px-4 py-3 bg-white rounded-lg shadow-md">
   {/* content */}
 </div>
+```
+
+### 6. Programing paradignms
+- Functional Components with React.FC type
+- Hooks for state and side effects
+- Async/Await for API calls
+
+Example:
+```tsx
+export const ComponentName: React.FuncionComponent<QueryInputProps> = ({ prop1, prop2, ... }) => {
+  {/* component logic */}
+  return (
+    {/* JSX */}
+  );
+}
 ```
 
 ## Development Workflow

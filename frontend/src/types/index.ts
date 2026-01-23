@@ -1,9 +1,9 @@
-import { PromptResponse } from '../services/api';
+import { Response } from '../services/api';
 
 export interface AssistantQuery {
   id: string;
   query: string;
-  response: PromptResponse | null;
+  response?: Response;
   timestamp: Date;
-  error?: string;
+  error?: Error | string;
 }

@@ -1,10 +1,10 @@
+from backend.app.config import LOCAL_MODEL
 from ollama import ChatResponse, chat
-from app.config import LOCAL_MODEL
 
 SYSTEM_PROMPT = """
     You are a senior software engineer and technical assistant.
     Be precise, factual, and explicit about uncertainty.
-    Do not invent facts.
+    Do not invent facts or make assumptions.
 """
 
 def ReasonerAgent(input_text: str):

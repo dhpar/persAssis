@@ -1,68 +1,48 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 
 export interface PromptRequest {
   query: string;
 }
 
-export interface PromptResponse {
+export interface Response {
   answer: string;
   mode: string;
   latency_seconds: number;
 }
 
-export interface HealthResponse {
-  status: string;
-  mode: string;
+
+const headers:HeadersInit = {
+  'Content-Type': 'application/json',
 }
 
-class APIClient {
-  private client: AxiosInstance;
-
-  constructor(baseURL: string = 'http://localhost:8000') {
-    this.client = axios.create({
-      baseURL,
-      timeout: 60000, // 60 second timeout for LLM calls
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-
-  /**
-   * Send a query to the AI assistant
-   * @param query - The user's query/prompt
-   * @returns Promise containing the AI's answer and metadata
-   */
-  async ask(query: string): Promise<PromptResponse> {
-    const request: PromptRequest = { query };
-    const response = await this.client.post<PromptResponse>('/prompt', request);
-    return response.data;
-  }
-
-  /**
-   * Check if the backend is healthy and running
-   * @returns Promise containing health status and current mode
-   */
-  async health(): Promise<HealthResponse> {
-    const response = await this.client.get<HealthResponse>('/health');
-    return response.data;
-  }
-
-  /**
-   * Set the base URL for the API client (useful for changing backends)
-   * @param baseURL - New base URL
-   */
-  setBaseURL(baseURL: string): void {
-    this.client = axios.create({
-      baseURL,
-      timeout: 60000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
+const request: AxiosRequestConfig  = {
+  baseURL: 'http://localhost:8000',
+  timeout: 60000, // 60 second timeout for LLM calls
+  headers
 }
 
-// Export singleton instance
-export const api = new APIClient();
-export default APIClient;
+const client = axios.create(request);
+
+const usePromptQuestionAPI = async ({query}: {query: string}) => {
+  const request: PromptRequest = { query };
+  const response = await client.post<Response>('/prompt', request);
+  // const answer = response.data.answer;
+  console.log('Prompt API response:', response.data.answer);
+  if(response.statusText !== 'OK') {
+      throw new Error('Prompt API request failed');
+  }
+
+  return response;
+} 
+
+const useGetHealthAPI = async() => {
+    const response = await client.get<Response>('/health');
+    
+    if(response.statusText !== 'OK') {
+      throw new Error('Backend health check failed');
+    }
+
+    return response;
+}
+
+export { usePromptQuestionAPI, useGetHealthAPI };

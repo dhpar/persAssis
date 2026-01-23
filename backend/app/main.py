@@ -1,13 +1,30 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 import time
-from app.config import APP_MODE
-from app.graph.agent_graph import run_reasone_dagent_graph
+from fastapi.applications import FastAPI
+from pydantic.main import BaseModel
+from starlette.exceptions import HTTPException
+from starlette.middleware.cors import CORSMiddleware
+from backend.app.config import APP_MODE
+from backend.app.graph.agent_graph import run_reasone_dagent_graph
+from backend.app.agents import ReasonerAgent, VerifierAgent, BaseAgent
 
 app = FastAPI(
     title="Local AI Assistant",
     description="Local-first, hybrid AI assistant with verification and tool routing",
     version="0.1.0",
+)
+
+origins = [
+    "http://localhost",
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+
+    allow_headers=["*"],
 )
 
 # -----------------------------
@@ -22,10 +39,9 @@ class AskResponse(BaseModel):
     mode: str
     latency_seconds: float
 
-
 # -----------------------------
 # Health Check
-# -----------------------------
+# ----------------------------- 
 @app.get("/health")
 def health_check():
     return {

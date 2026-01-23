@@ -1,7 +1,6 @@
-from app.agents.reasoner import ReasonerAgent
-from app.agents.verifier import VerifierAgent
-from app.llm.local_llm import Query
-from fastapi import APIRouter
+from backend.app.llm.local_llm import Query
+from fastapi.routing import APIRouter
+from backend.app.agents import ReasonerAgent, VerifierAgent, BaseAgent
 
 app = APIRouter()
 MAX_CORRECTION_LOOPS = 1
