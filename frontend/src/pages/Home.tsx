@@ -5,7 +5,6 @@ import { AssistantQuery } from '../types';
 import { useGetHealthAPI, usePromptQuestionAPI } from '../services/api';
 
 export const Home: React.FC = () => {
-  // const { answer, loading, error, latency } = useAssistant();
   const [queries, setQueries] = useState<AssistantQuery[]>([]);
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
   const [loading, setLoading] = useState<boolean>(false);
@@ -52,8 +51,8 @@ export const Home: React.FC = () => {
     }
   };
 
-  const handleRemove = (id: string) => {
-    setQueries((prev) => prev.filter((q) => q.id !== id));
+  const handleRemove = (queryId: string) => {
+    setQueries((prev) => prev.filter(({id}) => id !== queryId));
   };
   
   return (
