@@ -1,7 +1,9 @@
 from backend.app.llm.local_llm import LocalLLM, Query
 from backend.app.config import VERIFIER_MODEL
+from backend.app.prompts_loader import get_active_prompt
 
-SYSTEM_PROMPT = """
+# Default system prompt (fallback if none in database)
+DEFAULT_SYSTEM_PROMPT = """
     You are a strict fact-checker and reviewer.
     Your job is to identify:
     - Factual errors
@@ -10,14 +12,18 @@ SYSTEM_PROMPT = """
     Respond in JSON only.
 """
 
+
 def VerifierAgent(input_text: Query):
+    # Try to load from database, fall back to default
+    system_prompt = get_active_prompt("verifier_system") or DEFAULT_SYSTEM_PROMPT
+    
     prompt = f"""
         Review the following answer:
         \"\"\"
         {input_text.prompt}
         \"\"\"
         Respond with JSON:
-        {{s
+        {{
         "ok": true | false,
         "issues": "short explanation if false"
         }}
@@ -25,6 +31,6 @@ def VerifierAgent(input_text: Query):
     query = Query(
         prompt=prompt,
         model=VERIFIER_MODEL,
-        system=SYSTEM_PROMPT
+        system=system_prompt
     )
     return LocalLLM(query)

@@ -20,12 +20,12 @@ Response returned with latency tracking
 ```
 
 **Key Files**:
-- [app/main.py](app/main.py) - FastAPI entry point, single `/prompt` endpoint
-- [app/graph/agent_graph.py](app/graph/agent_graph.py) - Orchestration logic (ReasonerAgent → VerifierAgent correction loop)
-- [app/agents/reasoner.py](app/agents/reasoner.py) - Primary LLM reasoning using LOCAL_MODEL
-- [app/agents/verifier.py](app/agents/verifier.py) - Verification agent returning JSON verdict
-- [app/llm/local_llm.py](app/llm/local_llm.py) - Generic Ollama wrapper for local LLM calls
-- [app/config.py](app/config.py) - Model selection, token budgets, mode configuration
+- [../backend/app/main.py](../backend/app/main.py) - FastAPI entry point, single `/prompt` endpoint
+- [../backend/app/graph/agent_graph.py](../backend/app/graph/agent_graph.py) - Orchestration logic (ReasonerAgent → VerifierAgent correction loop)
+- [../backend/app/agents/reasoner.py](../backend/app/agents/reasoner.py) - Primary LLM reasoning using LOCAL_MODEL
+- [../backend/app/agents/verifier.py](../backend/app/agents/verifier.py) - Verification agent returning JSON verdict
+- [../backend/app/llm/local_llm.py](../backend/app/llm/local_llm.py) - Generic Ollama wrapper for local LLM calls
+- [../backend/app/config.py](../backend/app/config.py) - Model selection, token budgets, mode configuration
 
 ## Critical Patterns
 
@@ -66,7 +66,7 @@ content = response.message.content
   - Reasoning: Qwen 2.5 7B (conversational, coding-aware)
   - Verification: Mistral 7B (stricter, JSON-compliant)
   - Max tokens: 2048 per call
-- Token budgets in [app/config.py](app/config.py) define hardware constraints
+- Token budgets in [../backend/app/config.py](../backend/app/config.py) define hardware constraints
 
 ## Development Workflow
 
@@ -79,7 +79,7 @@ ollama serve  # Runs Ollama on localhost:11434
 
 # In another terminal, start the FastAPI server
 cd /home/david/coding/persAssis
-python -m uvicorn app.main:app --reload
+python -m uvicorn backend.app.main:app --reload
 ```
 
 ### Testing a Query
@@ -96,7 +96,7 @@ Response includes answer, mode, and latency_seconds.
 These features are scoped but not yet implemented. Understand the design before building:
 
 ### RAG (Retrieval-Augmented Generation)
-- **Entry point**: [../app/agents/tool_router.py](../app/agents/tool_router.py) (currently a stub)
+- **Entry point**: [../backend/app/agents/tool_router.py](../backend/app/agents/tool_router.py) (currently a stub)
 - **Design pattern**: ReasonerAgent receives context from document retrieval before generating answer
 - **Integration**: Query → `route_tools()` → retrieve docs → append to system prompt → ReasonerAgent
 - **Example use case**: "What's the salary range for senior engineers at my company?" → retrieve job_docs.pdf → inject as context
@@ -104,7 +104,7 @@ These features are scoped but not yet implemented. Understand the design before 
 ### Tool Routing
 - **Current state**: Decisions are hardcoded into system prompts
 - **Future state**: Separate "tool decider" agent recommends tools (code search, job lookup, image gen)
-- **Implementation path**: Add agent function `ToolDeciderAgent(query) -> List[Tool]` in [../app/agents/](../app/agents/), integrate into agent_graph.py before reasoning
+- **Implementation path**: Add agent function `ToolDeciderAgent(query) -> List[Tool]` in [../backend/app/agents/](../backend/app/agents/), integrate into agent_graph.py before reasoning
 - **Planned tools**: 
   - Code search (search Github/local repos)
   - Job discovery API (query job listings)
@@ -116,7 +116,7 @@ These features are scoped but not yet implemented. Understand the design before 
   - Simple queries → local Qwen (fast, private)
   - Complex reasoning → cloud GPT-4 (smarter, cloud-backed)
   - Image gen → local SD 1.5 if GPU available, else cloud
-- **Config**: Extend [../app/config.py](../app/config.py) with cloud provider credentials and thresholds
+- **Config**: Extend [../backend/app/config.py](../backend/app/config.py) with cloud provider credentials and thresholds
 
 ## Known Constraints & Future Scope
 
@@ -130,6 +130,7 @@ These features are scoped but not yet implemented. Understand the design before 
 2. **Error Handling**: FastAPI HTTPExceptions with descriptive detail messages
 3. **Agent Returns**: Strings by default; JSON only when VerifierAgent-like role requires structured output
 4. **Imports**: Organize by standard library → third-party (langchain, ollama, pydantic, fastapi) → local (app.*)
+5. **Functional code**: Keep agents stateless; all state via inputs/outputs; prefer pure functions to classes unless maintaining state; In general follow functional programming principles.
 
 ### System Prompt Examples
 
@@ -188,10 +189,10 @@ Be concise; user will review details separately.
 
 ## When Adding Features
 
-- **New Agent?** Follow the [../app/agents/reasoner.py](../app/agents/reasoner.py) pattern; register in [../app/graph/agent_graph.py](../app/graph/agent_graph.py)
+- **New Agent?** Follow the [../backend/app/agents/reasoner.py](../backend/app/agents/reasoner.py) pattern; register in [../backend/app/graph/agent_graph.py](../backend/app/graph/agent_graph.py)
 - **New Tool?** Implement in tool_router.py; integrate via system prompt or explicit tool-calling instruction
-- **New LLM Integration?** Extend [../app/llm/local_llm.py](../app/llm/local_llm.py); avoid hardcoding API keys
-- **Configuration Change?** Update [../app/config.py](../app/config.py); document hardware assumptions in Readme.md
+- **New LLM Integration?** Extend [../backend/app/llm/local_llm.py](../backend/app/llm/local_llm.py); avoid hardcoding API keys
+- **Configuration Change?** Update [../backend/app/config.py](../backend/app/config.py); document hardware assumptions in Readme.md
 
 ## Debugging Tips
 
