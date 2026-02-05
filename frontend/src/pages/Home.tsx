@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { QueryInput } from '../components/QueryInput';
 import { QueryResult } from '../components/QueryResult';
 import { AssistantQuery } from '../types';
@@ -58,23 +59,39 @@ export const Home: React.FC = () => {
   return (
    <>
       {/* Main Content */}
-      <main className=" mx-auto px-4 py-8 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <main className=" mx-auto px-4 py-8 min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
         <header className="bg-white shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">Local AI Assistant</h1>
-            <p className="text-gray-600 mt-2">
-              Privacy-aware, local-first AI with built-in verification
-            </p>
-            <div className="mt-4 flex items-center gap-2">
-              <div
-                className={`h-3 w-3 rounded-full ${
-                  backendStatus === 'offline' ? 'bg-red-500' : 'bg-green-500'
-                }`}
-              ></div>
-              <span className="text-sm text-gray-600">
-                Backend: <span className="font-semibold">{backendStatus}</span>
-              </span>
+          <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900">Local AI Assistant</h1>
+              <p className="text-gray-600 mt-2">
+                Privacy-aware, local-first AI with built-in verification
+              </p>
+              <div className="mt-4 flex items-center gap-2">
+                <div
+                  className={`h-3 w-3 rounded-full ${
+                    backendStatus === 'offline' ? 'bg-red-500' : 'bg-green-500'
+                  }`}
+                ></div>
+                <span className="text-sm text-gray-600">
+                  Backend: <span className="font-semibold">{backendStatus}</span>
+                </span>
+              </div>
             </div>
+            <nav className="flex gap-2">
+              <Link
+                to="/"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
+              >
+                Chat
+              </Link>
+              <Link
+                to="/prompts"
+                className="px-4 py-2 bg-gray-200 text-gray-900 rounded-md hover:bg-gray-300 font-medium"
+              >
+                Manage Prompts
+              </Link>
+            </nav>
           </div>
         </header>
         {/* Input Section */}
