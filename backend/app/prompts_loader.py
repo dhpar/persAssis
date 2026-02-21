@@ -2,8 +2,8 @@
 Utility functions for loading and managing prompts from the database.
 """
 from typing import Optional
-from backend.app.database import SessionLocal
-from backend.app.models.prompt_model import Prompt
+from app.database import SessionLocal
+from app.models.prompt_model import Prompt
 
 
 def get_active_prompt(prompt_type: str) -> Optional[str]:

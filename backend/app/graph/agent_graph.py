@@ -1,7 +1,7 @@
-from backend.app.llm.local_llm import Query
+from app.llm.local_llm import Query
 from fastapi.routing import APIRouter
-from backend.app.agents import ReasonerAgent, VerifierAgent, BaseAgent
-from backend.app.prompts_loader import get_active_prompt
+from app.agents import ReasonerAgent, VerifierAgent, BaseAgent
+from app.prompts_loader import get_active_prompt
 
 app = APIRouter()
 MAX_CORRECTION_LOOPS = 1

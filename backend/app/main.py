@@ -4,21 +4,23 @@ from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.applications import FastAPI
+from pydantic import ValidationError
 from pydantic.main import BaseModel
-from sqlalchemy import cast
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
-from backend.app.config import APP_MODE
-from backend.app.config import VERIFIER_MODEL
-from backend.app.agents import ReasonerAgent, VerifierAgent, BaseAgent
-from backend.app.database import init_db, get_db
-from backend.app.graph.agent_graph import run_reasone_dagent_graph
-from backend.app.llm.local_llm import LocalLLM, Query
-from backend.app.models.prompt_model import Prompt
-from backend.app.schemas.prompt_schema import (
-    PromptCreate, PromptUpdate, PromptResponse, PromptList, PromptActivateResponse
+from app.database import init_db
+from app.graph.agent_graph import run_reasone_dagent_graph
+from app.models.prompt_model import Prompt
+from app.config import APP_MODE, VERIFIER_MODEL
+from app.llm.local_llm import LocalLLM, Query
+from app.schemas.prompt_schema import (
+    PromptCreate, 
+    PromptType, 
+    PromptUpdate, 
+    PromptResponse, 
+    PromptList, 
+    PromptActivateResponse
 )
 
 class UnicornException(Exception):
@@ -44,14 +46,15 @@ app = FastAPI(
 
 origins = [
     "http://localhost",
-    "http://localhost:5173",
+    "http://localhost:5173/",
+    "http://localhost:8000/"
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["DELETE,GET,POST,PUT"],
     allow_headers=["*"],
 )
 
@@ -203,8 +206,8 @@ def verify(request: AskRequest):
 
 @app.get("/prompts", response_model=PromptList)
 def list_prompts(
-    prompt_type: Optional[str] = None,
-    tags: Optional[str] = None,
+    prompt_type: Optional[PromptType] = PromptType.all,
+    tags: Optional[str] = None, 
     page: int = 1,
     page_size: int = 10,
 ):
@@ -213,24 +216,29 @@ def list_prompts(
     Supports pagination.
     """
     # Use SessionLocal to get a database session
-    from backend.app.database import SessionLocal
+    from app.database import SessionLocal
+    
     db = SessionLocal()
     try:
         query = db.query(Prompt)
         
-        if prompt_type:
+        if prompt_type is not None:
             query = query.filter(Prompt.type == prompt_type)
         
         if tags:
             # Simple substring search in tags
             query = query.filter(Prompt.tags.ilike(f"%{tags}%"))
         
-        total = query.count()
         prompts = query.offset((page - 1) * page_size).limit(page_size).all()
-        
+
+        try:
+            prompts = [PromptResponse.model_validate(prompt) for prompt in prompts]
+        except ValidationError as exc:
+            prompts = repr(exc.errors()[0]['msg'])
+            
         return PromptList(
-            total=total,
-            prompts=[PromptResponse.from_orm(p) for p in prompts],
+            total=query.count(),
+            prompts=prompts,
             page=page,
             page_size=page_size,
         )
@@ -243,7 +251,7 @@ def get_prompt(prompt_id: int):
     """
     Get a single prompt by ID.
     """
-    from backend.app.database import SessionLocal
+    from app.database import SessionLocal
     db = SessionLocal()
     try:
         prompt = db.query(Prompt).filter(Prompt.id == prompt_id).first()
@@ -252,7 +260,7 @@ def get_prompt(prompt_id: int):
                 status_code=404,
                 detail=f"Prompt with ID {prompt_id} not found"
             )
-        return PromptResponse.from_orm(prompt)
+        return PromptResponse.model_validate(prompt)
     finally:
         db.close()
 
@@ -264,7 +272,7 @@ def create_prompt(request: PromptCreate):
     If is_active=True and type already has an active prompt, 
     the old one will be deactivated.
     """
-    from backend.app.database import SessionLocal
+    from app.database import SessionLocal
     db = SessionLocal()
     try:
         # If this prompt should be active, deactivate others of the same type
@@ -285,7 +293,7 @@ def create_prompt(request: PromptCreate):
         db.add(prompt)
         db.commit()
         db.refresh(prompt)
-        return PromptResponse.from_orm(prompt)
+        return PromptResponse.model_validate(prompt)
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -301,7 +309,7 @@ def update_prompt(prompt_id: int, request: PromptUpdate):
     """
     Update an existing prompt.
     """
-    from backend.app.database import SessionLocal
+    from app.database import SessionLocal
     db = SessionLocal()
     try:
         prompt = db.query(Prompt).filter(Prompt.id == prompt_id).first()
@@ -330,7 +338,7 @@ def update_prompt(prompt_id: int, request: PromptUpdate):
         
         db.commit()
         db.refresh(prompt)
-        return PromptResponse.from_orm(prompt)
+        return PromptResponse.model_validate(prompt)
     except HTTPException:
         db.rollback()
         raise
@@ -349,7 +357,7 @@ def delete_prompt(prompt_id: int):
     """
     Delete a prompt by ID.
     """
-    from backend.app.database import SessionLocal
+    from app.database import SessionLocal
     db = SessionLocal()
     try:
         prompt = db.query(Prompt).filter(Prompt.id == prompt_id).first()
@@ -380,7 +388,7 @@ def activate_prompt(prompt_id: int):
     """
     Activate a prompt and deactivate all other prompts of the same type.
     """
-    from backend.app.database import SessionLocal
+    from app.database import SessionLocal
     db = SessionLocal()
     try:
         prompt = db.query(Prompt).filter(Prompt.id == prompt_id).first()

@@ -3,7 +3,7 @@ ORM models for database persistence.
 """
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
-from backend.app.database import Base
+from app.database import Base
 
 
 class Prompt(Base):

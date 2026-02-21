@@ -1,5 +1,5 @@
-from backend.app.config import LOCAL_MODEL
-from backend.app.prompts_loader import get_active_prompt
+from app.config import LOCAL_MODEL
+from app.prompts_loader import get_active_prompt
 from ollama import ChatResponse, chat
 
 # Default system prompt (fallback if none in database)

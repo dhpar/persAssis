@@ -1,3 +1,3 @@
-from backend.app.agents.verifier import VerifierAgent
-from backend.app.agents.reasoner import ReasonerAgent
-from backend.app.agents.base import BaseAgent
+from app.agents.verifier import VerifierAgent
+from app.agents.reasoner import ReasonerAgent
+from app.agents.base import BaseAgent

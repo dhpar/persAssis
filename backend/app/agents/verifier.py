@@ -1,6 +1,6 @@
-from backend.app.llm.local_llm import LocalLLM, Query
-from backend.app.config import VERIFIER_MODEL
-from backend.app.prompts_loader import get_active_prompt
+from app.llm.local_llm import LocalLLM, Query
+from app.config import VERIFIER_MODEL
+from app.prompts_loader import get_active_prompt
 
 # Default system prompt (fallback if none in database)
 DEFAULT_SYSTEM_PROMPT = """
