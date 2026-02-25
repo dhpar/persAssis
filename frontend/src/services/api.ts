@@ -56,6 +56,8 @@ export interface IPromptActivateResponse {
 
 const headers:HeadersInit = {
   'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*', // Allow all origins for CORS
+  
 }
 
 const request: AxiosRequestConfig  = {

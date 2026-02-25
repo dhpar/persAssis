@@ -3,6 +3,8 @@ services:
     command: "npm run start"
     ports: 
       - "5173:5173"
+    networks:
+      - apiNetwork
     build: 
       context: ./frontend
       dockerfile: Dockerfile
@@ -16,6 +18,10 @@ services:
             - node_modules/
         - action: rebuild
           path: package.json
+    volumes:
+      - ./frontend:/frontend
+      # Create an anonymous volume for node_modules to use the container's installed packages
+      - /frontend/node_modules
     
   backend:
     build: 
@@ -34,3 +40,9 @@ services:
     restart: always
     ports: 
       - "8000:8000"
+    volumes:
+      - ./backend:/backend
+      - /backend/env
+networks: 
+  apiNetwork:
+    driver: bridge  
