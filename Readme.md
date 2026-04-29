@@ -1,6 +1,6 @@
 # Local AI Assistant - Monorepo
 
-A full-stack, local-first AI assistant with React frontend and FastAPI backend. Privacy-aware, verifiable, and designed for consumer hardware.
+Privacy-aware, local-first AI assistant with React frontend and FastAPI backend. Runs on consumer hardware with verifiable dual-model reasoning.
 
 ```
 User (React UI)
