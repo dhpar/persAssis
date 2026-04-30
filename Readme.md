@@ -1,4 +1,4 @@
-# Local AI Assistant - Monorepo
+# Local AI Assistant (Monorepo)
 
 Privacy-aware, local-first AI assistant with React frontend and FastAPI backend. Runs on consumer hardware with verifiable dual-model reasoning.
 
