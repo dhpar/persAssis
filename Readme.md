@@ -95,7 +95,7 @@ Open http://localhost:3000 in your browser.
 - **Verification**: Mistral 7B fact-checks all outputs (verifiability > blind generation)
 - **Correction Loop**: Up to 1 iteration of self-correction based on feedback
 - **FastAPI**: Single `/prompt` endpoint, latency tracking, health checks
-- **Planned**: RAG (retrieval-augmented generation), tool routing, hybrid mode
+- **WIP**: RAG (retrieval-augmented generation), tool routing, hybrid mode
 
 ### Frontend (User Interface)
 - **React 18 + TypeScript**: Type-safe component architecture
